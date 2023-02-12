@@ -4,6 +4,9 @@
 Le site web du developpeur doit avoir un endpoint qui attend cette requete quand un paiement est fait.
 
 ## Application mobile
+
+![plant-uml-libre-paie](https://user-images.githubusercontent.com/4486484/218331700-e40ab959-0b6f-412d-99e3-bb50187c74b5.png)
+
 ### Couche d'interface utilisateur (UI)
 La couche d'interface utilisateur est responsable de fournir à l'utilisateur une interface simple et intuitive pour effectuer des opérations de suivi de paiements et de vérification de solde. Cette couche communique avec la couche de logique métier pour récupérer les informations nécessaires à l'affichage.
 
