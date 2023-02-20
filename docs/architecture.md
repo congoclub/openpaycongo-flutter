@@ -1,7 +1,7 @@
 # Fonctionnalités du produit :
 
 ## Extension pour site web/système
-Le site web du developpeur doit avoir un endpoint qui attend cette requete quand un paiement est fait.
+Le site web du developpeur doit avoir un endpoint qui attend cette requête quand un paiement est fait.
 
 ## Application mobile
 
