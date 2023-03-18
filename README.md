@@ -1,4 +1,16 @@
-# openpaycongo-flutter
-Le système de paiement distribué a pour objectif de permettre aux développeurs Congolais d'accepter les paiements mobiles sans avoir à créer un compte marchand avec les compagnies de télécommunications.
+# opencongopay
 
-You can see the architecture here: https://github.com/congoclub/openpaycongo-flutter/blob/main/docs/architecture.md
+A new Flutter project.
+
+## Getting Started
+
+This project is a starting point for a Flutter application.
+
+A few resources to get you started if this is your first Flutter project:
+
+- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
