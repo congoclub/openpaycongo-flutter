@@ -38,6 +38,9 @@ dependencies:
   google_ml_kit: ^0.13.0
   telephony: ^0.2.0
   http: ^0.13.5
+  test: ^1.22.0
+  sqflite: ^2.2.6
+  path_provider: ^2.0.13
 
 dev_dependencies:
   flutter_test:
