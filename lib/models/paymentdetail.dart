@@ -17,17 +17,18 @@ class PaymentDetail {
     required this.reference,
   });
 
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        'sender': sender,
-        'amount': amount,
-        'currency': currency,
-        'balance': balance,
-        'reference': reference,
-      };
+  PaymentDetail.fromMap(Map<String, dynamic> map)
+      : id = map['id'],
+        name = map['name'],
+        sender = map['sender'],
+        amount = map['amount'],
+        currency = map['currency'],
+        balance = map['balance'],
+        reference = map['reference'];
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'name': name,
       'sender': sender,
       'amount': amount,
@@ -35,5 +36,25 @@ class PaymentDetail {
       'balance': balance,
       'reference': reference,
     };
+  }
+
+  PaymentDetail copy({
+    int? id,
+    String? name,
+    String? sender,
+    String? amount,
+    String? currency,
+    String? balance,
+    String? reference,
+  }) {
+    return PaymentDetail(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      sender: sender ?? this.sender,
+      amount: amount ?? this.amount,
+      currency: currency ?? this.currency,
+      balance: balance ?? this.balance,
+      reference: reference ?? this.reference,
+    );
   }
 }
