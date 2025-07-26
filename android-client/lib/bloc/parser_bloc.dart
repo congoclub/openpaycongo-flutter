@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import '../models/parser_source.dart';
 import '../services/Parsers/parser_store.dart';
+import '../services/Telemetry/telemetry.dart';
 
 abstract class ParserEvent {}
 class LoadParsers extends ParserEvent {}
@@ -21,12 +22,16 @@ class ParserBloc extends Bloc<ParserEvent, ParserState> {
   final ParserStore store;
   ParserBloc(this.store) : super(ParserInitial()) {
     on<LoadParsers>((event, emit) async {
+      final span = Telemetry.instance.tracer.startSpan('load_parsers');
       final parsers = await store.all();
+      span.end();
       emit(ParserLoaded(parsers));
     });
     on<AddParser>((event, emit) async {
+      final span = Telemetry.instance.tracer.startSpan('add_parser');
       await store.insert(ParserSource(name: event.name, regex: event.regex));
       final parsers = await store.all();
+      span.end();
       emit(ParserLoaded(parsers));
     });
   }
