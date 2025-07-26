@@ -43,6 +43,47 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]any{"id": id})
 	})
+
+	r.Post("/wallet/{phone}/debit", func(w http.ResponseWriter, r *http.Request) {
+		phone := chi.URLParam(r, "phone")
+		var body struct {
+			Amount int64  `json:"amount"`
+			Ref    string `json:"ref"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		id, err := store.AddDebit(phone, body.Amount, body.Ref)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		json.NewEncoder(w).Encode(map[string]any{"id": id})
+	})
+
+	r.Get("/parsers", func(w http.ResponseWriter, r *http.Request) {
+		ps, err := store.Parsers()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(w).Encode(ps)
+	})
+
+	r.Post("/parsers", func(w http.ResponseWriter, r *http.Request) {
+		var p wallet.Parser
+		if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		id, err := store.AddParser(p)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		json.NewEncoder(w).Encode(map[string]any{"id": id})
+	})
 	r.Get("/wallet/{phone}", func(w http.ResponseWriter, r *http.Request) {
 		phone := chi.URLParam(r, "phone")
 		bal, err := store.Balance(phone)

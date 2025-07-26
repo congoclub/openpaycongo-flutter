@@ -36,6 +36,28 @@ func TestAddCreditAndBalance(t *testing.T) {
 	}
 }
 
+func TestParsersAndDebit(t *testing.T) {
+	dir := t.TempDir()
+	store, err := NewStore(filepath.Join(dir, "test.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.AddParser(Parser{Name: "test", Regex: "reg"}); err != nil {
+		t.Fatalf("add parser: %v", err)
+	}
+	ps, err := store.Parsers()
+	if err != nil || len(ps) != 1 {
+		t.Fatalf("parsers list")
+	}
+	if _, err := store.AddDebit("+1", 100, "ref"); err != nil {
+		t.Fatalf("add debit: %v", err)
+	}
+	bal, _ := store.Balance("+1")
+	if bal != -100 {
+		t.Fatalf("unexpected balance %d", bal)
+	}
+}
+
 func TestAmountMismatch(t *testing.T) {
 	dir := t.TempDir()
 	store, err := NewStore(filepath.Join(dir, "test.db"))
