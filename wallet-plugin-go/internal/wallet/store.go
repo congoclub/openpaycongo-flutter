@@ -15,6 +15,12 @@ type Store struct {
 	db *sql.DB
 }
 
+type Parser struct {
+	ID    int64
+	Name  string
+	Regex string
+}
+
 type Transaction struct {
 	ID        int64
 	Phone     string
@@ -36,6 +42,13 @@ func NewStore(path string) (*Store, error) {
         amount INTEGER NOT NULL,
         raw_sms TEXT NOT NULL,
         ts DATETIME NOT NULL
+    )`); err != nil {
+		return nil, err
+	}
+	if _, err := db.Exec(`CREATE TABLE IF NOT EXISTS parsers(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        regex TEXT NOT NULL
     )`); err != nil {
 		return nil, err
 	}
@@ -69,6 +82,46 @@ func (s *Store) AddCredit(txn Transaction) (int64, error) {
 		return 0, err
 	}
 	return res.LastInsertId()
+}
+
+func (s *Store) AddDebit(phone string, amount int64, ref string) (int64, error) {
+	if phone == "" || amount <= 0 {
+		return 0, errors.New("invalid debit")
+	}
+	res, err := s.db.Exec(`INSERT INTO transactions(phone,amount,raw_sms,ts) VALUES(?,?,?,?)`,
+		phone, -amount, ref, time.Now())
+	if err != nil {
+		return 0, err
+	}
+	return res.LastInsertId()
+}
+
+func (s *Store) AddParser(p Parser) (int64, error) {
+	if p.Name == "" || p.Regex == "" {
+		return 0, errors.New("invalid parser")
+	}
+	res, err := s.db.Exec(`INSERT INTO parsers(name,regex) VALUES(?,?)`, p.Name, p.Regex)
+	if err != nil {
+		return 0, err
+	}
+	return res.LastInsertId()
+}
+
+func (s *Store) Parsers() ([]Parser, error) {
+	rows, err := s.db.Query(`SELECT id,name,regex FROM parsers`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var ps []Parser
+	for rows.Next() {
+		var p Parser
+		if err := rows.Scan(&p.ID, &p.Name, &p.Regex); err != nil {
+			return nil, err
+		}
+		ps = append(ps, p)
+	}
+	return ps, nil
 }
 
 func (s *Store) Balance(phone string) (int64, error) {
