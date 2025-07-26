@@ -1,18 +1,49 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	_ "github.com/mattn/go-sqlite3"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	"go.opentelemetry.io/otel/sdk/resource"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 
 	"github.com/example/wallet-plugin-go/internal/wallet"
 )
 
+func initTracer(ctx context.Context) (*sdktrace.TracerProvider, error) {
+	exp, err := stdouttrace.New(stdouttrace.WithWriter(os.Stdout))
+	if err != nil {
+		return nil, err
+	}
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(exp),
+		sdktrace.WithResource(resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceName("wallet-server"),
+		)),
+	)
+	otel.SetTracerProvider(tp)
+	return tp, nil
+}
+
 func main() {
+	ctx := context.Background()
+	tp, err := initTracer(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() { _ = tp.Shutdown(ctx) }()
+
 	store, err := wallet.NewStore("wallet.db")
 	if err != nil {
 		log.Fatal(err)
@@ -98,6 +129,7 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 	})
 
+	handler := otelhttp.NewHandler(r, "chi-server")
 	log.Println("listening on :8080")
-	http.ListenAndServe(":8080", r)
+	http.ListenAndServe(":8080", handler)
 }
