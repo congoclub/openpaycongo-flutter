@@ -4,9 +4,10 @@ import 'package:opencongopay/models/paymentdetail.dart';
 import 'package:telephony/telephony.dart';
 import 'package:test/test.dart';
 import 'package:opencongopay/services/SmsListener/smsparser.dart';
+import 'package:opencongopay/models/smspattern.dart';
 
 void main() {
-  test('Process Message with Orange Regex Return the correct values', () {
+  test('Process Message with dynamic pattern return correct values', () {
     final details = [
       {
         "name": "Paul",
@@ -34,6 +35,15 @@ void main() {
       }
     ];
 
+    final parser = SmsParser();
+    parser.updatePatterns([
+      const SmsPattern(
+        source: 'orange',
+        regex:
+            r'Vous avez recu (\\d+(?:\\.\\d+)?) (\\S+) de (\\S+) (\\d+)\\. Nouveau solde: (\\d+(?:\\.\\d+)?) (\\S+). Ref: (\\S+)'
+      )
+    ]);
+
     for (final detail in details) {
       final SmsMessage orangeMessage = SmsMessage.fromMap({
         "_id": "12",
@@ -47,7 +57,7 @@ void main() {
         "status": "STATUS_COMPLETE",
       }, INCOMING_SMS_COLUMNS);
 
-      PaymentDetail payment = processOrangeMessageWithRegex(orangeMessage);
+      final PaymentDetail? payment = parser.tryParse(orangeMessage) as PaymentDetail?;
 
       expect(payment.id, null);
       expect(payment.name, detail['name']);
